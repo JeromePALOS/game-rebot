@@ -1,0 +1,201 @@
+<!DOCTYPE	html>
+<html class="height">
+	<head>
+    	<meta charset="utf-8">    
+    	<title>ReBot</title>
+		
+    	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<script src="js/jquery.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		
+    	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"> 
+		<link href="styles/css.css" rel="stylesheet" type="text/css">
+		
+		<meta name="keywords" content="robot, jeu, javascript, etudiant, multimedia, jquery" />
+		<meta name="description" content="" />
+		
+		<script>
+       	 //CREATION MAP AVEC BACKGROUND
+			var hauteur= 9;
+			var largeur= 12;
+			var energie= 2;
+          
+			xperso=1;  // position pour reference
+			yperso=0;
+        
+            
+			//tableau � double entr�e repr�sentant un labyrinthe
+			var laby = [[0,0,0,1,0,0,0,0,1,1,0,0],
+						["p",1,5,1,1,1,1,1,4,1,1,0],
+						[0,0,0,1,1,1,1,1,1,1,1,10],
+						[0,8,0,0,1,6,0,0,1,1,0,0],
+						[0,1,1,1,1,1,0,0,1,1,0,1],
+					    [0,1,1,1,1,1,0,1,1,1,0,1],
+				    	[1,1,9,0,0,1,0,1,1,4,1,1],
+						[1,1,1,0,0,1,1,1,1,1,1,0],
+				    	[0,0,0,0,1,1,1,4,1,0,0,0]];
+		 
+        $(document).keypress(function mouvement(event){									//zqsd
+			var x = event.charCode || event.keycode;
+			
+			//deplacement
+            if((x == 122 || x== 90) && laby[xperso-1][yperso]!=0){//haut
+                pile(-1,+0);
+				laby[xperso][yperso]=1;
+                laby[xperso-1][yperso]="p";
+                xperso=xperso-1;
+                gameover();
+                AffLaby();
+
+                if(laby[xperso][yperso]==laby[4][11]){ //win
+                    laby[xperso][yperso]=1;
+                    laby[xperso-1][yperso]="p";
+                    window.location.href = 'win.html';
+                }
+            
+			}else if((x == 115 || x== 83) && laby[xperso+1][yperso]!=0){                        //bas
+                pile(+1,+0);
+				laby[xperso][yperso]=1;
+                laby[xperso+1][yperso]="p";
+                xperso=xperso+1;
+                gameover();
+                AffLaby();
+                
+                
+			}else if((x == 100 || x== 68) && (laby[xperso][yperso+1]==1 || laby[xperso][yperso+1]==4 || laby[xperso][yperso+1]==5 || laby[xperso][yperso+1]==6 || laby[xperso][yperso+1]==8 || laby[xperso][yperso+1]==10) ){                        //droite
+                pile(+0,+1);
+				laby[xperso][yperso]=1;
+                laby[xperso][yperso+1]="p";
+                yperso=yperso+1;
+                gameover();
+                AffLaby();
+            
+			}else if((x == 113 || x== 81) && (laby[xperso][yperso-1]==1 || laby[xperso][yperso-1]==4 || laby[xperso][yperso-1]==5 || laby[xperso][yperso-1]==6 || laby[xperso][yperso-1]==8 || laby[xperso][yperso-1]==10)){                        //gauche
+                pile(+0,-1);
+				laby[xperso][yperso]=1;
+                laby[xperso][yperso-1]="p";
+                yperso=yperso-1;
+                gameover();
+                AffLaby();
+			}else{
+			    AffLaby();
+			}
+        });
+			
+		//Creation du tableau par dessus le background
+		function AffLaby(){		
+			insertion="<table class='height width'>"; /*border=0 cellspacing=0 cellpadding=0*/		
+			for(var h = 0; h< hauteur; h++){
+				insertion+="<tr >";
+				for(var i = 0; i< largeur; i++){
+					insertion+="<td style='width: 8.33%; height:11.11%;'>";
+					if(laby[h][i]=="p"){
+						insertion+="<img src='images/player.png'  style='width: 80%;'/>";
+					}else if(laby[h][i]==4){
+						insertion+="<img src='images/pile +4.png' style='width: 80%;'/>";
+					}else if(laby[h][i]==5){
+						insertion+="<img src='images/pile +5.png' style='width: 80%;'/>";
+					}else if(laby[h][i]==6){
+						insertion+="<img src='images/pile +6.png'  style='width: 80%;'/>";
+					}else if(laby[h][i]==8){
+						insertion+="<img src='images/pile +8.png'  style='width: 80%;'/>";
+					}else if(laby[h][i]==9){
+						insertion+="<img src='images/pile +9.png' style='width: 80%;' />";
+					}else if(laby[h][i]==10){
+						insertion+="<img src='images/pile +10.png' style='width: 80%;' />";
+					}else{
+						insertion+="<span></span>";
+					}
+					insertion+="</td>";
+				}
+				insertion+="</tr>";
+			}
+			insertion+="</table>";
+			document.getElementById("tab").innerHTML=insertion;
+		}
+		
+		//Cacher un element
+		function cache(objet){
+		    document.getElementById(objet).style.display = "none";
+		    
+		}
+		
+		//Enleve energie et test game over
+		function gameover(){
+		    energie=energie-1;
+		    
+		    if(energie==0){
+		        document.getElementById("energie").innerHTML = energie;
+		        alert("GAMEOVER, Vous n'avez plus d'energie...");
+		        window.location.reload();
+		    }else{
+		        document.getElementById("energie").innerHTML = energie;
+		    }
+		}
+		
+		//Augmentation de l'energie
+		function pile(x,y){
+			if(laby[xperso+x][yperso+y]==4){
+				energie=energie+4;
+			}else if(laby[xperso+x][yperso+y]==5){
+				energie=energie+5;
+			}else if(laby[xperso+x][yperso+y]==6){
+				energie=energie+6;
+			}else if(laby[xperso+x][yperso+y]==8){
+				energie=energie+8;
+			}else if(laby[xperso+x][yperso+y]==9){
+				energie=energie+9;
+			}else if(laby[xperso+x][yperso+y]==10){
+				energie=energie+10;
+			}else{}
+		}
+		
+		//charge le tableau
+		$(document).ready(function() {
+            AffLaby();
+        });
+        
+    </script>
+	
+	</head>
+	<body class="height container-fluid">
+		<nav class="navbar navbar-inverse" role="navigation">
+			<div class="row height menu">
+				<div class="navbar-header title">
+			<!--Titre-->
+					<img class="nav-brand nounder logo"  src="images/logo.png">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#barre-de-navigation">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+				</div>
+			
+			<!--Menu-->			
+				<div class="collapse navbar-collapse" id="barre-de-navigation" style="margin-top: 2%;">
+					<ul class="nav navbar-nav" style="margin-left: 4%;">
+						<li><a href="index.html"><span class="page">ACCUEIL</span></a></li>
+						<li><a href="credits.html"><span class="page">CREDITS</span></a></li>			
+					</ul>
+				</div>
+			</div>	
+		</nav>
+		
+
+		<section class="height">
+			<div class="row height">
+				<div style="width:1000px;height: 700px;" class="height col-lg-offset-2 col-md-offset-0 col-sm-offset-0 col-xs-offset-0">
+                    
+					<div style="text-align: left">
+					    <img src="images/pile.png" style="float:left;"><h3 style="color: white;" id="energie">Energie</h3>
+					</div>
+					<div id="tab" class="background height" style="width:100%;">
+
+					</div>
+				</div>
+			</div>
+		</section>
+		
+	</body>
+</html>
